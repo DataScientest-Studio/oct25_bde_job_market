@@ -145,6 +145,7 @@ def predict_batch(jobs_df):
     """Predict salaries for multiple jobs"""
     model_data = joblib.load('salary_model.pkl')
     model = model_data['model']
+    train_median_values = model_data['median_values']
 
     if 'latitude' not in jobs_df or jobs_df['latitude'].isna().any():
         jobs_df['latitude'] = jobs_df['latitude'].fillna(train_median_values.get('latitude', 52.52))
