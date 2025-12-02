@@ -101,9 +101,12 @@ def prepare_features(df, model_data):
     X = X.drop('title', axis=1)
 
     # Align columns with training
-    for col in model_data['feature_columns']:
-        if col not in X.columns:
-            X[col] = 0
+    missing_cols = [col for col in model_data['feature_columns'] if col not in X.columns]
+    if missing_cols:
+        # Create all missing columns at once using concat
+        missing_df = pd.DataFrame(0, index=X.index, columns=missing_cols)
+        X = pd.concat([X, missing_df], axis=1)
+    # Reorder to match training columns
     X = X[model_data['feature_columns']]
     return X
 
