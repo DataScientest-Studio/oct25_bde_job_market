@@ -9,7 +9,7 @@ load_dotenv()
 APP_ID = os.getenv("APP_ID")
 APP_KEY = os.getenv("APP_KEY")
 
-def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_seen=None, max_pages=5):
+def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_seen=None, max_pages=None):
     """
     Fetch jobs from Adzuna API incrementally.
     Stops fetching older jobs than `newest_seen`.
@@ -25,8 +25,12 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
     }
 
     jobs = []
+    page = 1
 
-    for page in range(1, max_pages + 1):
+    while True:
+        if max_pages is not None and page > max_pages:
+            break
+
         url = f"{base_url}/{page}"
         response = requests.get(url, params=params)
         response.raise_for_status()
@@ -40,8 +44,10 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
             created_dt = datetime.fromisoformat(job["created"].rstrip("Z"))
 
             if newest_seen and created_dt <= newest_seen:
-                return jobs  # early stop
+                return jobs
 
             jobs.append(job)
+
+        page += 1
 
     return jobs

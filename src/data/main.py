@@ -3,7 +3,7 @@ from postgres_db import store_jobs_sql, get_latest_job_date_sql
 from mongo_db import store_jobs_nosql
 from datetime import timedelta
 
-def main():
+def main(max_pages=None):
     # Determine the newest job date we already have
     latest_job_date = get_latest_job_date_sql()
 
@@ -17,7 +17,7 @@ def main():
 
     # Fetch jobs incrementally from API
     print("Fetching job listings...")
-    jobs = fetch_jobs(newest_seen=fetch_from, max_pages=5)
+    jobs = fetch_jobs(newest_seen=fetch_from, max_pages=None)
     print(f"Fetched {len(jobs)} candidate job(s).\n")
 
     # Store in Postgres
@@ -29,4 +29,4 @@ def main():
     store_jobs_nosql(jobs)
 
 if __name__ == "__main__":
-    main()
+    main(max_pages=5)
