@@ -9,31 +9,34 @@ load_dotenv()
 # MongoDB connection string from .env
 MONGO_URI = os.getenv("MONGO_URI")
 
-def store_jobs_nosql(jobs, start_date, end_date):
+def store_jobs_nosql(jobs):
     """
-    Filter jobs by creation date and insert into MongoDB.
-    Used for batch imports with date filtering.
+    Inserts jobs into MongoDB, avoiding duplicates.
+    Uses the job 'id' field as unique identifier.
+    Returns the number of NEW jobs inserted.
     """
     client = MongoClient(MONGO_URI)
     db = client.adzuna
     collection = db.jobs
+    collection.create_index("id", unique=True)
 
-    filtered_jobs = []
+    inserted_count = 0
+    
     for job in jobs:
-        created_str = job.get("created")
-        if created_str:
-            # Remove 'Z' and parse ISO datetime
-            created_date = datetime.fromisoformat(created_str.rstrip("Z"))
-            if start_date <= created_date <= end_date:
-                job.pop('_id', None)
-                filtered_jobs.append(job)
+        # Remove MongoDB _id if present
+        job.pop('_id', None)
+        result = collection.update_one(
+            {"id": job["id"]},        # find job by unique Adzuna ID
+            {"$setOnInsert": job},    # insert only if not exists
+            upsert=True
+        )
+        if result.upserted_id:        # increment if a new job was actually inserted
+            inserted_count += 1
 
-    if filtered_jobs:
-        collection.insert_many(filtered_jobs)
-        print(f"Inserted {len(filtered_jobs)} jobs from API into MongoDB.")
+    if inserted_count:
+        print(f"Inserted {inserted_count} new jobs into MongoDB.")
     else:
-        print("No jobs to insert for the specified date range.")
+        print("No new jobs to insert into MongoDB.")
 
     client.close()
-
-    return len(filtered_jobs)
+    return inserted_count

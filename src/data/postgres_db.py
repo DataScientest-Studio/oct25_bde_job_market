@@ -7,12 +7,29 @@ from datetime import datetime
 load_dotenv()
 PG_CONN = os.getenv("PG_CONN")
 
-def store_jobs_sql(jobs, start_date=None, end_date=None):
+def get_latest_job_date_sql():
+    """
+    Returns the newest job 'created' timestamp in the database.
+    Returns None if DB is empty.
+    """
+    conn = psycopg2.connect(PG_CONN)
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(created) FROM Job;")
+    latest = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return latest
 
+def store_jobs_sql(jobs):
+    """
+    Store a list of job dictionaries in PostgreSQL.
+    Only inserts new jobs; duplicates are skipped.
+    Returns the number of NEW jobs inserted.
+    """
     if not jobs:
-        print("No jobs to insert for the specified date range.")
-        return 0  # Return count 0 inserted
-
+        print("No jobs to insert.")
+        return 0
+    
     conn = psycopg2.connect(PG_CONN)
     cur = conn.cursor()
 
@@ -70,26 +87,10 @@ def store_jobs_sql(jobs, start_date=None, end_date=None):
     """)
 
     # ================================
-    # FILTER JOBS BASED ON 'created' FIELD
-    # ================================
-    if start_date and end_date:
-        # Filter jobs using the created date
-        filtered_jobs = []
-        for job in jobs:
-            created_str = job.get('created')
-            if created_str:
-                created_dt = datetime.fromisoformat(created_str.rstrip("Z"))
-                if start_date <= created_dt <= end_date:
-                    filtered_jobs.append(job)
-        jobs = filtered_jobs
-
-    if not jobs:
-        print("No jobs to insert for the specified date range.")
-        return 0
-
-    # ================================
     # INSERT DATA
     # ================================
+    inserted_count = 0
+
     for job in jobs:
         # -----------------------------------
         # 1. Company
@@ -151,7 +152,8 @@ def store_jobs_sql(jobs, start_date=None, end_date=None):
                 company_id, location_id, category_id
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (job_id) DO NOTHING;
+            ON CONFLICT (job_id) DO NOTHING
+            RETURNING job_id;
         """, (
             job.get("id"),
             job.get("title"),
@@ -167,10 +169,13 @@ def store_jobs_sql(jobs, start_date=None, end_date=None):
             category_id
         ))
 
-    print(f"Inserted {len(jobs)} jobs from API into SQL database.\n")
+        if cur.fetchone():
+            inserted_count += 1
+
+    print(f"Inserted {inserted_count} new jobs into SQL database.\n")
 
     conn.commit()
     cur.close()
     conn.close()
 
-    return len(jobs)
+    return inserted_count
