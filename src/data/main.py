@@ -17,7 +17,7 @@ def main(max_pages=None):
 
     # Fetch jobs incrementally from API
     print("Fetching job listings...")
-    jobs = fetch_jobs(newest_seen=fetch_from, max_pages=None)
+    jobs = fetch_jobs(newest_seen=fetch_from, max_pages=max_pages)
     print(f"Fetched {len(jobs)} candidate job(s).\n")
 
     # Store in Postgres

@@ -28,13 +28,18 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
     page = 1
 
     while True:
+        print(f"About to fetch page {page}, max_pages={max_pages}")
         if max_pages is not None and page > max_pages:
+            print("Breaking due to max_pages")
             break
 
         url = f"{base_url}/{page}"
+        print(f"Fetching page {page}...")
         response = requests.get(url, params=params)
+        print(f"Response status: {response.status_code}")
         response.raise_for_status()
         data = response.json()
+        print(f"API results count: {len(data.get('results', []))}")
 
         page_jobs = data.get("results", [])
         if not page_jobs:

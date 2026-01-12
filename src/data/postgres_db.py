@@ -14,8 +14,11 @@ def get_latest_job_date_sql():
     """
     conn = psycopg2.connect(PG_CONN)
     cur = conn.cursor()
-    cur.execute("SELECT MAX(created) FROM Job;")
-    latest = cur.fetchone()[0]
+    try:
+        cur.execute("SELECT MAX(created) FROM Job;")
+        latest = cur.fetchone()[0]
+    except psycopg2.errors.UndefinedTable:
+        latest = None
     cur.close()
     conn.close()
     return latest
