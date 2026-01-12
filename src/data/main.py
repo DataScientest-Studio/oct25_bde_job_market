@@ -1,23 +1,32 @@
 from src.data.fetch_api_data import fetch_jobs
 from src.data.postgres_db import store_jobs_sql
-# from mongo_db import store_jobs_nosql
-from datetime import datetime
+from src.data.mongo_db import store_jobs_nosql
+from datetime import timedelta
 
-def main():
-    start_date = datetime.fromisoformat("2025-11-01")
-    end_date = datetime.fromisoformat("2025-11-20")
+def main(max_pages=None):
+    # Determine the newest job date we already have
+    latest_job_date = get_latest_job_date_sql()
 
+    # Refetch last 2 days to catch any missed jobs
+    if latest_job_date:
+        fetch_from = latest_job_date - timedelta(days=2)
+        print(f"Fetching jobs newer than {fetch_from}")
+    else:
+        fetch_from = None
+        print("No jobs in DB yet – initial fetch")
+
+    # Fetch jobs incrementally from API
     print("Fetching job listings...")
-    jobs = fetch_jobs()
-    print(f"Fetched {len(jobs)} job(s).\n")
+    jobs = fetch_jobs(newest_seen=fetch_from, max_pages=None)
+    print(f"Fetched {len(jobs)} candidate job(s).\n")
 
-    print("Storing in SQL database...")
-    stored_count_sql = store_jobs_sql(jobs, start_date, end_date)
-    print(f"Stored {stored_count_sql} job(s).")
-    
-    # print("Storing in NoSQL database...")
-    # stored_count_nosql = store_jobs_nosql(jobs, start_date, end_date)
-    # print(f"Stored {stored_count_nosql} job(s).")
-    
+    # Store in Postgres
+    print("Storing in SQL database (Postgres)...")
+    store_jobs_sql(jobs)
+
+    # Store in MongoDB
+    print("Storing in NoSQL database (MongoDB)...")
+    store_jobs_nosql(jobs)
+
 if __name__ == "__main__":
-    main()
+    main(max_pages=5)
