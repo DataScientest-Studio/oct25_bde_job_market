@@ -11,8 +11,8 @@ print(requests.get(url).json())
 # Start ingestion pipeline
 url = base_url + "/data"
 
-print(requests.put(url).json())
-
+print(requests.put(url, params={"max_pages": 1}).json())
+print(requests.put(url, params={"max_pages": 1}).text)
 # Get Postings
 url = base_url + "/data/postings"
 
