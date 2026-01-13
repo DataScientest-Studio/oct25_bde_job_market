@@ -10,12 +10,17 @@ PG_CONN = os.getenv("PG_CONN")
 def get_latest_job_date_sql():
     """
     Returns the newest job 'created' timestamp in the database.
-    Returns None if DB is empty.
+    Returns None if table does not exist or DB is empty.
     """
     conn = psycopg2.connect(PG_CONN)
     cur = conn.cursor()
-    cur.execute("SELECT MAX(created) FROM Job;")
-    latest = cur.fetchone()[0]
+    try:
+        cur.execute("SELECT MAX(created) FROM Job;")
+        latest = cur.fetchone()[0]
+    except psycopg2.errors.UndefinedTable:
+        conn.rollback()
+        latest = None
+
     cur.close()
     conn.close()
     return latest
@@ -172,7 +177,7 @@ def store_jobs_sql(jobs):
         if cur.fetchone():
             inserted_count += 1
 
-    print(f"Inserted {inserted_count} new jobs into SQL database.\n")
+    print(f"✅ Inserted {inserted_count} new jobs into SQL database.\n")
 
     conn.commit()
     cur.close()
