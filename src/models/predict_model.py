@@ -111,18 +111,11 @@ def prepare_features(df, model_data):
     return X
 
 def predict_salary(job_title, job_description, contract_type='permanent', 
-                   contract_time='full_time', city='Berlin', country='Deutschland',
-                   latitude=None, longitude=None):
+                   contract_time='full_time', city='Berlin', country='Deutschland'):
     """Predict salary for a single job"""
     model_data = joblib.load('salary_model.pkl')
     model = model_data['model']
     train_median_values = model_data['median_values']
-    
-    # Use median values from training if latitude/longitude not provided
-    if latitude is None:
-        latitude = train_median_values.get('latitude', 52.52)  # fallback default
-    if longitude is None:
-        longitude = train_median_values.get('longitude', 13.405)
     
     # Build dataframe
     df = pd.DataFrame([{
@@ -131,9 +124,7 @@ def predict_salary(job_title, job_description, contract_type='permanent',
         'contract_type': contract_type,
         'contract_time': contract_time,
         'city': city,
-        'country': country,
-        'latitude': latitude,
-        'longitude': longitude
+        'country': country
     }])
     
     df = extract_simple_features(df)
@@ -146,12 +137,6 @@ def predict_batch(jobs_df):
     model_data = joblib.load('salary_model.pkl')
     model = model_data['model']
     train_median_values = model_data['median_values']
-
-    if 'latitude' not in jobs_df or jobs_df['latitude'].isna().any():
-        jobs_df['latitude'] = jobs_df['latitude'].fillna(train_median_values.get('latitude', 52.52))
-    
-    if 'longitude' not in jobs_df or jobs_df['longitude'].isna().any():
-        jobs_df['longitude'] = jobs_df['longitude'].fillna(train_median_values.get('longitude', 13.405))
 
     df = extract_simple_features(jobs_df.copy())
     X = prepare_features(df, model_data)
@@ -180,9 +165,7 @@ if __name__ == "__main__":
         contract_type='permanent',
         contract_time='full_time',
         city='Berlin',
-        country='Deutschland',
-        latitude=52.52,
-        longitude=13.405
+        country='Deutschland'
     )
 
     print(f"\nJob Title: {job_title}")
@@ -201,9 +184,7 @@ if __name__ == "__main__":
             'contract_type': 'permanent',
             'contract_time': 'full_time',
             'city': 'Munich',
-            'country': 'Deutschland',
-            'latitude': 48.1351,
-            'longitude': 11.5820
+            'country': 'Deutschland'
         },
         {
             'title': 'Lead Java Developer',
@@ -211,9 +192,7 @@ if __name__ == "__main__":
             'contract_type': 'contract',
             'contract_time': 'full_time',
             'city': 'Frankfurt',
-            'country': 'Deutschland',
-            'latitude': 50.1109,
-            'longitude': 8.6821
+            'country': 'Deutschland'
         }
     ])
 

@@ -160,10 +160,6 @@ print("\nCleaning data...")
 
 # Handle missing values
 df['job_description'] = df['job_description'].fillna('')
-# df['latitude'] = df['latitude'].fillna(df['latitude'].median())
-# df['longitude'] = df['longitude'].fillna(df['longitude'].median())
-# df['city'] = df['city'].fillna('Unknown')
-# df['country'] = df['country'].fillna('Deutschland')
 
 # Remove rows with missing salary
 df = df.dropna(subset=['salary_min', 'salary_max'])
@@ -195,8 +191,7 @@ y = df['salary_avg']
 keyword_features = [col for col in df.columns if col.startswith('has_')]
 
 # Your existing numeric features
-numeric_features = ['latitude', 'longitude', 
-                    'years_required', 'desc_length', 'title_length']
+numeric_features = ['years_required', 'desc_length', 'title_length']
 
 categorical_columns = ['title', 'contract_type', 'contract_time', 'city', 'country']
 
@@ -217,7 +212,7 @@ y_test = y_test.reset_index(drop=True)
 print("\nHandling missing values in train/test sets...")
 
 # Numerical columns - fill with median from training set
-numerical_columns = ['latitude', 'longitude', 'desc_length', 'years_required']
+numerical_columns = ['desc_length', 'years_required']
 for col in numerical_columns:
     X_train[col] = X_train[col].fillna(X_train[col].median())
     X_test[col] = X_test[col].fillna(X_train[col].median())
