@@ -187,8 +187,7 @@ def train_salary_model():
     keyword_features = [col for col in df.columns if col.startswith('has_')]
 
     # Your existing numeric features
-    numeric_features = ['latitude', 'longitude', 
-                        'years_required', 'desc_length', 'title_length']
+    numeric_features = ['years_required', 'desc_length', 'title_length']
 
     categorical_columns = ['title', 'contract_type', 'contract_time', 'city', 'country']
 
