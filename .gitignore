@@ -92,3 +92,5 @@ target/
 
 # csv files
 .csv
+
+venv

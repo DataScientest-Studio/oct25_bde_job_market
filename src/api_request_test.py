@@ -12,12 +12,17 @@ print(requests.get(url).json())
 url = base_url + "/data"
 
 print(requests.put(url, params={"max_pages": 1}).json())
-print(requests.put(url, params={"max_pages": 1}).text)
+
+# Trigger training
+url = base_url + "/training"
+
+print(requests.get(url).json())
+
 # Get Postings
 url = base_url + "/data/postings"
 
 parameters = {
-    "columns":["job_id", "longitude", "company_name"]
+    "columns":["company_name"]
 }
 
 pprint(requests.get(url, params=parameters).json())
@@ -31,7 +36,10 @@ parameters = {
     We are looking for a Senior Python Developer with 5+ years experience.
     Skills required: Python, AWS, Machine Learning.
     Remote work possible.
-    """
+    """,
+    "city":"Berlin",
+    "contract_type":"Permanent",
+    "contract_time":"Full Time"
 }
 
 pprint(requests.get(url, params=parameters).json())
