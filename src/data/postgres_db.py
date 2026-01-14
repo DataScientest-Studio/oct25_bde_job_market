@@ -4,31 +4,10 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from datetime import datetime
 
-load_dotenv()
+load_dotenv(encoding="utf-8")
 PG_CONN = os.getenv("PG_CONN")
 
-def get_latest_job_date_sql():
-    """
-    Returns the newest job 'created' timestamp in the database.
-    Returns None if DB is empty.
-    """
-    conn = psycopg2.connect(PG_CONN)
-    cur = conn.cursor()
-    cur.execute("SELECT MAX(created) FROM Job;")
-    latest = cur.fetchone()[0]
-    cur.close()
-    conn.close()
-    return latest
-
-def store_jobs_sql(jobs):
-    """
-    Store a list of job dictionaries in PostgreSQL.
-    Only inserts new jobs; duplicates are skipped.
-    Returns the number of NEW jobs inserted.
-    """
-    if not jobs:
-        print("No jobs to insert.")
-        return 0
+def init_database():
     
     conn = psycopg2.connect(PG_CONN)
     cur = conn.cursor()
@@ -85,6 +64,85 @@ def store_jobs_sql(jobs):
         description_text TEXT
     );
     """)
+
+def get_latest_job_date_sql():
+    """
+    Returns the newest job 'created' timestamp in the database.
+    Returns None if DB is empty.
+    """
+    conn = psycopg2.connect(PG_CONN)
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(created) FROM Job;")
+    latest = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return latest
+
+def store_jobs_sql(jobs):
+    """
+    Store a list of job dictionaries in PostgreSQL.
+    Only inserts new jobs; duplicates are skipped.
+    Returns the number of NEW jobs inserted.
+    """
+    if not jobs:
+        print("No jobs to insert.")
+        return 0
+    
+    # conn = psycopg2.connect(PG_CONN)
+    # cur = conn.cursor()
+
+    # # ================================
+    # # CREATE TABLES
+    # # ================================
+    # cur.execute("""
+    # CREATE TABLE IF NOT EXISTS Company (
+    #     company_id SERIAL PRIMARY KEY,
+    #     company_name TEXT UNIQUE
+    # );
+    # """)
+
+    # cur.execute("""
+    # CREATE TABLE IF NOT EXISTS Category (
+    #     category_id SERIAL PRIMARY KEY,
+    #     tag TEXT UNIQUE,
+    #     label TEXT
+    # );
+    # """)
+
+    # cur.execute("""
+    # CREATE TABLE IF NOT EXISTS Location (
+    #     location_id SERIAL PRIMARY KEY,
+    #     display_name TEXT UNIQUE,
+    #     latitude NUMERIC,
+    #     longitude NUMERIC,
+    #     country TEXT,
+    #     city TEXT
+    # );
+    # """)
+
+    # cur.execute("""
+    # CREATE TABLE IF NOT EXISTS Job (
+    #     job_id BIGINT PRIMARY KEY,
+    #     title TEXT,
+    #     contract_type TEXT,
+    #     contract_time TEXT,
+    #     created TIMESTAMP,
+    #     adref TEXT,
+    #     redirect_url TEXT,
+    #     salary_min INT,
+    #     salary_max INT,
+    #     company_id INT REFERENCES Company(company_id),
+    #     location_id INT REFERENCES Location(location_id),
+    #     category_id INT REFERENCES Category(category_id)
+    # );
+    # """)
+
+    # cur.execute("""
+    # CREATE TABLE IF NOT EXISTS JobDescription (
+    #     job_id BIGINT PRIMARY KEY REFERENCES Job(job_id),
+    #     description_text TEXT
+    # );
+    # """)
 
     # ================================
     # INSERT DATA
