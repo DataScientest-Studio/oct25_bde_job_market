@@ -113,7 +113,7 @@ def prepare_features(df, model_data):
 def predict_salary(job_title, job_description, contract_type='permanent', 
                    contract_time='full_time', city='Berlin', country='Deutschland'):
     """Predict salary for a single job"""
-    model_data = joblib.load('salary_model.pkl')
+    model_data = joblib.load('models/salary_model.pkl')
     model = model_data['model']
     train_median_values = model_data['median_values']
     
@@ -134,7 +134,7 @@ def predict_salary(job_title, job_description, contract_type='permanent',
 
 def predict_batch(jobs_df):
     """Predict salaries for multiple jobs"""
-    model_data = joblib.load('salary_model.pkl')
+    model_data = joblib.load('models/salary_model.pkl')
     model = model_data['model']
     train_median_values = model_data['median_values']
 

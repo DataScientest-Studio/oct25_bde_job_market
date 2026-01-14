@@ -4,6 +4,7 @@ import joblib
 import re
 import warnings
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from pymongo import MongoClient
@@ -27,7 +28,7 @@ MONGO_URI = os.getenv("MONGO_URI")
 DATABASE_NAME = 'adzuna'
 COLLECTION_NAME = 'jobs'
 PG_CONN = os.getenv("PG_CONN")
-OUTPUT_MODEL = 'salary_model.pkl'
+OUTPUT_MODEL = Path(__file__).parent.parent.parent / 'models/salary_model.pkl'
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
 
