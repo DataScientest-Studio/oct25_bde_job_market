@@ -57,3 +57,6 @@ services:
       APP_ID: ${APP_ID}
       APP_KEY: ${APP_KEY}
     restart: unless-stopped
+
+volumes:
+    pgdata:

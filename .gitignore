@@ -93,4 +93,8 @@ target/
 # csv files
 .csv
 
+# virtual env
 venv
+
+# FastAPI test
+api_request_test.py
