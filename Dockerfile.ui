@@ -1,0 +1,11 @@
+FROM repo-pipeline:latest
+
+WORKDIR /app
+
+COPY requirements-ui.txt /app/requirements-ui.txt
+RUN pip install --no-cache-dir -r requirements-ui.txt
+
+# Wichtig: UI braucht den Code (app.py etc.)
+COPY . /app
+
+CMD ["python", "-m", "streamlit", "run", "app.py", "--server.address=0.0.0.0", "--server.port=8501"]

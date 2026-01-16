@@ -1,0 +1,20 @@
+﻿.git
+.vscode
+.idea
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Kein Repo-data in Images
+data/
+*.csv
+*.json
+
+# Replit
+.replit
+.local/
+
+# OS
+Thumbs.db
+.DS_Store
