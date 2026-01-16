@@ -18,14 +18,14 @@ def store_jobs_nosql(jobs):
     client = None
     try:
         # Create new client connection
-        client = MongoClient(
-            host='localhost',
-            port=27017,
-            username=os.getenv("MONGO_USER"),
-            password=os.getenv("MONGO_PASS"),
-            authSource="admin",
-            serverSelectionTimeoutMS=5000
-        )
+        client = MongoClient(MONGO_URI)
+        #     host='localhost',
+        #     port=27017,
+        #     username=os.getenv("MONGO_USER"),
+        #     password=os.getenv("MONGO_PASS"),
+        #     authSource="admin",
+        #     serverSelectionTimeoutMS=5000
+        # )
         
         # Test connection
         client.admin.command('ping')

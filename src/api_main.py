@@ -1,10 +1,11 @@
 import pandas as pd
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, BackgroundTasks
 import json
 # from pydantic import BaseModel
 from typing import List, Optional
 from pymongo import MongoClient
 import os
+import logging
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from src.data.main import main as ingestion_pipeline
@@ -15,6 +16,8 @@ from src.models.train_model import train_salary_model
 load_dotenv()
 
 api = FastAPI()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # System
 @api.get("/health")
@@ -22,13 +25,40 @@ def check_health():
     return "API is functional"
 
 # Ingestion
+# @api.put("/data")
+# def trigger_ingestion(max_pages:int = 5):
+#     """
+#     Fetches data from Adzuna and stores it in SQL and NoSQL Database.
+#     """
+#     ingestion_pipeline(max_pages = max_pages)
+#     return {"Status": "Ingestion complete"}
+
+def run_ingestion(max_pages: int):
+    """Wrapper function to run ingestion safely in background"""
+    try:
+        logger.info(f"Starting background ingestion with max_pages={max_pages}")
+        ingestion_pipeline(max_pages=max_pages)
+        logger.info("Background ingestion completed successfully")
+    except Exception as e:
+        logger.error(f"Background ingestion failed: {str(e)}")
+
 @api.put("/data")
-def trigger_ingestion(max_pages:int = 5):
-    """
-    Fetches data from Adzuna and stores it in SQL and NoSQL Database.
-    """
-    ingestion_pipeline(max_pages = max_pages)
-    return {"Status": "Ingestion complete"}
+async def trigger_ingestion(
+    background_tasks: BackgroundTasks, 
+    max_pages: int = 5
+):
+    logger.info("=== ENDPOINT HIT ===")
+    logger.info(f"Received request with max_pages={max_pages}")
+    
+    # Add the wrapper function to background tasks
+    background_tasks.add_task(run_ingestion, max_pages)
+    
+    logger.info("Returning response immediately")
+    return {
+        "status": "accepted",
+        "message": f"Ingestion started in background for {max_pages} pages",
+        "note": "Check server logs for progress"
+    }
 
 @api.put("/training")
 def trigger_model_training():
