@@ -45,4 +45,18 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
-      - 5050:80  
+      - 5051:80  
+  
+  api:
+    build: .
+    container_name: my-fastapi-app
+    ports:
+      - "8000:8000"
+    environment:
+      PG_CONN: ${PG_CONN_API}
+      APP_ID: ${APP_ID}
+      APP_KEY: ${APP_KEY}
+    restart: unless-stopped
+
+volumes:
+    pgdata:
