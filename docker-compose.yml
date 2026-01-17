@@ -6,11 +6,16 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
     volumes:
-      - ./mongodata:/data/db
+      - mongo_data:/data/db
     ports:
       - 27017:27017
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # mongo-express:
   #   image: mongo-express:1.0.2-20-alpine3.19
@@ -43,6 +48,11 @@ services:
       - 5432:5432
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4:9
@@ -66,8 +76,10 @@ services:
       APP_ID: ${APP_ID}
       APP_KEY: ${APP_KEY}
     depends_on:
-      - postgres
-      - mongodb
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - app-network
@@ -77,4 +89,5 @@ networks:
     driver: bridge
 
 volumes:
+  mongo_data:
   pgdata:
