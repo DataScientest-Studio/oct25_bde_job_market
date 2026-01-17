@@ -92,4 +92,5 @@ target/
 .mypy_cache/
 
 # csv files
-.csv
+.csvdocker-compose.local.yml
+notebooks/.env
