@@ -27,7 +27,8 @@ MONGO_URI = os.getenv("MONGO_URI")
 DATABASE_NAME = 'adzuna'
 COLLECTION_NAME = 'jobs'
 PG_CONN = os.getenv("PG_CONN")
-OUTPUT_MODEL = 'salary_model.pkl'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+OUTPUT_MODEL = os.path.join(BASE_DIR, 'models', 'salary_model.pkl')
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
 
