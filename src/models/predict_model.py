@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import re
+import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MODEL_PATH = os.path.join(BASE_DIR, "models", "salary_model.pkl")
