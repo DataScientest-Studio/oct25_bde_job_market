@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 import joblib
 import re
+import os
 
-# ============================================================================
-# FEATURE EXTRACTION (same as training)
-# ============================================================================
+# Get the directory where this file is located
+MODEL_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(MODEL_DIR, 'salary_model.pkl')
 
 def extract_simple_features(df):
     """Extract simple features from job descriptions"""
@@ -113,7 +114,7 @@ def prepare_features(df, model_data):
 def predict_salary(job_title, job_description, contract_type='permanent', 
                    contract_time='full_time', city='Berlin', country='Deutschland'):
     """Predict salary for a single job"""
-    model_data = joblib.load('salary_model.pkl')
+    model_data = joblib.load(MODEL_PATH)
     model = model_data['model']
     train_median_values = model_data['median_values']
     
@@ -134,7 +135,7 @@ def predict_salary(job_title, job_description, contract_type='permanent',
 
 def predict_batch(jobs_df):
     """Predict salaries for multiple jobs"""
-    model_data = joblib.load('salary_model.pkl')
+    model_data = joblib.load(MODEL_PATH)
     model = model_data['model']
     train_median_values = model_data['median_values']
 
