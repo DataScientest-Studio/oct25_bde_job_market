@@ -1,6 +1,6 @@
-from fetch_api_data import fetch_jobs
-from postgres_db import store_jobs_sql, get_latest_job_date_sql
-from mongo_db import store_jobs_nosql
+from .fetch_api_data import fetch_jobs
+from .postgres_db import store_jobs_sql, get_latest_job_date_sql
+from .mongo_db import store_jobs_nosql
 from datetime import timedelta
 
 def main(max_pages=5):
