@@ -10,12 +10,13 @@ load_dotenv()
 APP_ID = os.getenv("APP_ID")
 APP_KEY = os.getenv("APP_KEY")
 
-def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_seen=None, max_pages=None):
+def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_seen=None, max_pages=None, start_page=1):
     """
     Fetch jobs for a category with pagination up to max_pages.
-    Uses an Airflow Variable to remember the next page to start from.
-    After fetching, updates the Variable to last_page + 1.
-    Respects limit of 25 page hits per minute.
+    Start page comes from caller (e.g., Airflow Variable via payload).
+    Computes next_start_page for caller to persist (e.g., Airflow Variable).
+    Respects limit of 25 page hits per minute (2.5s delay).
+    Returns {"jobs": list, "next_start_page": int}.
     """
     base_url = f"https://api.adzuna.com/v1/api/jobs/{country}/search"
     params = {
@@ -31,7 +32,8 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
     #start_page = int(start_page_str)
 
     jobs = []
-    page = 1
+    last_page_fetched = None
+
     # 25 hits per minute -> at least 60/25 ≈ 2.4 seconds between calls
     delay_seconds = 2.5
 
@@ -40,30 +42,32 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
         resp = requests.get(url, params=params)
         resp.raise_for_status()
         data = resp.json()
-
         page_results = data.get("results", [])
+
         if not page_results:
             print(f"No results on page {page}, stopping.")
             last_page_fetched = page
             break
 
+        early_stop = False
         # Add newest_seen check from secondary code
         if newest_seen:
             for job in page_results:
-                created_dt = datetime.fromisoformat(job["created"])
+                created_dt = datetime.fromisoformat(job["created"]).replace(tzinfo=None)
                 if created_dt <= newest_seen:
                     print(f"Reached jobs older than newest_seen on page {page}, stopping early.")
                     last_page_fetched = page  # Still update last_fetched
+                    early_stop = True
                     break  # Break the for-job loop
-            else:
-                # Continue to extend only if no early stop
+            if not early_stop:
                 jobs.extend(page_results)
         else:
-            # Original behavior without newest_seen
+            # Continue to extend only if no early stop
             jobs.extend(page_results)
 
-        last_page_fetched = page
-        print(f"Fetched page {page}, total jobs so far: {len(jobs)}")
+        if not early_stop:
+            last_page_fetched = page
+            print(f"Fetched page {page}, total jobs so far: {len(jobs)}")
 
         # Delay before next request
         time.sleep(delay_seconds)
@@ -71,9 +75,10 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
     # If nothing was fetched, still move the pointer one page ahead of where tried
     if last_page_fetched is None:
         last_page_fetched = start_page - 1
+    next_start_page = last_page_fetched + 1
+    print(f"Computed next_start_page: {next_start_page} (caller persists)")
 
-    next_page = last_page_fetched + 1
-    Variable.set(page_var_name, str(next_page))
-    print(f"Updated Airflow Variable '{page_var_name}' to: {next_page}")
-
-    return jobs
+    return {
+        "jobs": jobs,
+        "next_start_page": next_start_page
+    }
