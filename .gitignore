@@ -79,6 +79,7 @@ target/
 /data/
 /pgdata/
 /mongodata/
+/dockerdata
 
 # Mac OS-specific storage files
 .DS_Store
