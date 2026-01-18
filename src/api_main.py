@@ -24,15 +24,6 @@ logger = logging.getLogger(__name__)
 def check_health():
     return "API is functional"
 
-# Ingestion
-# @api.put("/data")
-# def trigger_ingestion(max_pages:int = 5):
-#     """
-#     Fetches data from Adzuna and stores it in SQL and NoSQL Database.
-#     """
-#     ingestion_pipeline(max_pages = max_pages)
-#     return {"Status": "Ingestion complete"}
-
 def run_ingestion(max_pages: int):
     """Wrapper function to run ingestion safely in background"""
     try:

@@ -1,3 +1,8 @@
+"""
+Streamlit app for salary prediction.
+Main entry point for the Streamlit application.
+"""
+
 import streamlit as st
 import requests
 import os
@@ -12,7 +17,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("💰 Job Market Salary Predictor")
+st.title("💰 IT Jobs Salary Predictor")
 st.markdown("Predict your salary based on job information")
 
 # API endpoint
@@ -20,7 +25,7 @@ API_URL = os.getenv("API_URL", "http://api:8000")
 
 st.sidebar.header("About")
 st.sidebar.info(
-    "This app predicts salaries based on job information using machine learning. "
+    "This app predicts salaries based on IT job information using machine learning (Germany only at the moment). "
     "Enter job details and get an instant prediction!"
 )
 
@@ -51,6 +56,12 @@ with col1:
 with col2:
     st.subheader("Job Details")
     
+    country = st.text_input(
+        "Country",
+        placeholder="e.g., Deutschland",
+        value="Deutschland"
+    )
+    
     contract_type = st.selectbox(
         "Contract Type",
         ["permanent", "contract", "temporary", "apprenticeship"],
@@ -75,6 +86,7 @@ if st.button("🔮 Predict Salary", use_container_width=True, type="primary"):
                     "job_title": job_title,
                     "job_description": job_description,
                     "city": city,
+                    "country": country,
                     "contract_time": contract_time,
                     "contract_type": contract_type
                 }
@@ -89,39 +101,45 @@ if st.button("🔮 Predict Salary", use_container_width=True, type="primary"):
                     data = response.json()
                     salary = data.get("Predicted Salary")
                     
-                    st.success("✅ Prediction complete!")
-                    
-                    # Display result
-                    col_result1, col_result2 = st.columns([1, 1])
-                    with col_result1:
-                        st.metric(
-                            label="Predicted Annual Salary",
-                            value=f"€{salary:,.0f}",
-                            delta=None
+                    if salary is None:
+                        st.error("❌ No salary prediction received from API")
+                    else:
+                        st.success("✅ Prediction complete!")
+                        
+                        # Display result
+                        col_result1, col_result2 = st.columns([1, 1])
+                        with col_result1:
+                            st.metric(
+                                label="Predicted Annual Salary",
+                                value=f"€{salary:,.0f}",
+                                delta=None
+                            )
+                        
+                        with col_result2:
+                            st.info(
+                                f"""
+                                **Job Details:**
+                                - Title: {job_title}
+                                - Location: {city}
+                                - Type: {contract_type}
+                                - Time: {contract_time}
+                                """
+                            )
+                        
+                        # Additional info
+                        st.markdown("---")
+                        st.subheader("📊 Insights")
+                        st.markdown(
+                            f"Based on {len(job_description)} characters of job description, "
+                            f"the model predicts this position in {city} will offer approximately **€{salary:,.0f}** annually."
                         )
-                    
-                    with col_result2:
-                        st.info(
-                            f"""
-                            **Job Details:**
-                            - Title: {job_title}
-                            - Location: {city}
-                            - Type: {contract_type}
-                            - Time: {contract_time}
-                            """
-                        )
-                    
-                    # Additional info
-                    st.markdown("---")
-                    st.subheader("📊 Insights")
-                    st.markdown(
-                        f"Based on {len(job_description)} characters of job description, "
-                        f"the model predicts this position in {city} will offer approximately **€{salary:,.0f}** annually."
-                    )
                 
                 else:
-                    st.error(f"API Error: {response.status_code}")
-                    st.write(response.json())
+                    st.error(f"❌ API Error: {response.status_code}")
+                    try:
+                        st.write(response.json())
+                    except:
+                        st.write(response.text)
                     
             except requests.exceptions.ConnectionError:
                 st.error(
@@ -136,7 +154,7 @@ st.markdown("---")
 st.markdown(
     """
     <div style='text-align: center'>
-    <small>Powered by Machine Learning | Data from Adzuna Job Market API</small>
+    <small>DST DE 2025/2026 | Data from Adzuna Job Market API</small>
     </div>
     """,
     unsafe_allow_html=True

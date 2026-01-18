@@ -4,8 +4,8 @@ import joblib
 import re
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "salary_model.pkl")
+# Get the path to the model file (same directory as this file)
+MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "salary_model.pkl")
 
 # ============================================================================
 # FEATURE EXTRACTION (same as training)
