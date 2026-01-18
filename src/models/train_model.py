@@ -27,7 +27,8 @@ MONGO_URI = os.getenv("MONGO_URI")
 DATABASE_NAME = 'adzuna'
 COLLECTION_NAME = 'jobs'
 PG_CONN = os.getenv("PG_CONN")
-OUTPUT_MODEL = 'salary_model.pkl'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+OUTPUT_MODEL = os.path.join(BASE_DIR, 'models', 'salary_model.pkl')
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
 
@@ -208,6 +209,16 @@ def train_salary_model():
     print("\nHandling missing values in train/test sets...")
 
     mode_values = {col: X_train[col].mode()[0] for col in categorical_columns}
+
+    ### Less aggressive cleaning
+    # 
+    # mode_values = {} 
+    # for col in categorical_columns:
+    #     if X_train[col].notna().sum() > 0:
+    #         mode_values[col] = X_train[col].mode()[0]
+    #     else:
+    #         mode_values[col] = 'Unknown'  # or X_train[col].fillna('Unknown').iloc[0]
+
     median_values = {col: X_train[col].median() for col in numeric_features}
 
     # Numerical columns - fill with median from training set
