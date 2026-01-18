@@ -6,7 +6,7 @@ services:
     networks:
       - app-network
 
-# -- MongoDB Services --
+  # -- MongoDB Services --
 
   mongodb:
     image: mongo:8.2.3

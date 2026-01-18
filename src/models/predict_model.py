@@ -207,7 +207,7 @@ if __name__ == "__main__":
         print(f"  Predicted Salary: €{pred:,.2f}")
 
 
-# How to se it to make predictions:
+# How to use it to make predictions:
 
 #    from predict_model import predict_salary
    
