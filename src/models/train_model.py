@@ -143,6 +143,7 @@ def train_salary_model():
 
     df_mongo = pd.DataFrame(list(cursor))
     df_mongo = df_mongo.rename(columns={"id": "job_id", "description": "job_description"})
+    # Convert job_id to int (it comes as string from MongoDB)
     df_mongo['job_id'] = df_mongo['job_id'].astype(int)
 
     ## Postgres
@@ -151,24 +152,28 @@ def train_salary_model():
     jobs = pd.read_sql("SELECT * FROM job", engine)
     locs = pd.read_sql("SELECT * FROM location", engine)
     
-    ## Merge the two
-    df = jobs.merge(locs)
-    df = df.merge(df_mongo)
+    ## Merge the two - use inner join on job_id
+    df = jobs.merge(locs, on='location_id')
+    df = df.merge(df_mongo, on='job_id', how='inner')
     print(f"   Loaded {len(df)} records")
     
     # 2. Clean data
     print("\n[2/5] Cleaning data...")
     df['job_description'] = df['job_description'].fillna('')
 
-    # Remove rows with missing salary
-    df = df.dropna(subset=['salary_min', 'salary_max'])
-    df = df[df['salary_max'] >= df['salary_min']]
+    # Remove rows with missing salary_min
+    df = df.dropna(subset=['salary_min'])
 
-    # Create target variable
-    df['salary_avg'] = (df['salary_min'] + df['salary_max']) / 2
+    # Create target variable: use salary_avg if salary_max exists, else use salary_min
+    df['salary_target'] = df.apply(
+        lambda row: (row['salary_min'] + row['salary_max']) / 2 
+        if pd.notna(row['salary_max']) and row['salary_max'] >= row['salary_min']
+        else row['salary_min'],
+        axis=1
+    )
 
-    # Remove hourly salaries
-    df = df[df['salary_min'] > 100]
+    # Remove hourly salaries (keep minimum threshold to exclude unreliable data)
+    df = df[df['salary_min'] >= 1000]
 
     df = df.reset_index(drop=True)
 
@@ -181,7 +186,7 @@ def train_salary_model():
     
     # 4. Prepare features
     print("\n[4/5] Preparing features...")
-    y = df['salary_avg']
+    y = df['salary_target']
 
     # Automatically select all columns beginning with "has_"
     keyword_features = [col for col in df.columns if col.startswith('has_')]
@@ -207,7 +212,16 @@ def train_salary_model():
     # Handling missing values - replacement (AFTER train/test split)
     print("\nHandling missing values in train/test sets...")
 
-    mode_values = {col: X_train[col].mode()[0] for col in categorical_columns}
+    # For categorical columns, use mode if it exists, otherwise use first value or a default
+    mode_values = {}
+    for col in categorical_columns:
+        mode_result = X_train[col].mode()
+        if len(mode_result) > 0:
+            mode_values[col] = mode_result[0]
+        else:
+            # If no mode, use first non-null value or 'Unknown'
+            mode_values[col] = X_train[col].dropna().iloc[0] if len(X_train[col].dropna()) > 0 else 'Unknown'
+    
     median_values = {col: X_train[col].median() for col in numeric_features}
 
     # Numerical columns - fill with median from training set
