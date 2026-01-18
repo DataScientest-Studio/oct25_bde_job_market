@@ -209,6 +209,16 @@ def train_salary_model():
     print("\nHandling missing values in train/test sets...")
 
     mode_values = {col: X_train[col].mode()[0] for col in categorical_columns}
+
+    ### Less aggressive cleaning
+    # 
+    # mode_values = {} 
+    # for col in categorical_columns:
+    #     if X_train[col].notna().sum() > 0:
+    #         mode_values[col] = X_train[col].mode()[0]
+    #     else:
+    #         mode_values[col] = 'Unknown'  # or X_train[col].fillna('Unknown').iloc[0]
+
     median_values = {col: X_train[col].median() for col in numeric_features}
 
     # Numerical columns - fill with median from training set
