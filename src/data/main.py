@@ -1,10 +1,7 @@
-from src.data.fetch_api_data import fetch_jobs
-from src.data.postgres_db import store_jobs_sql, get_latest_job_date_sql
-from src.data.mongo_db import store_jobs_nosql
+from .fetch_api_data import fetch_jobs
+from .postgres_db import store_jobs_sql, get_latest_job_date_sql
+from .mongo_db import store_jobs_nosql
 from datetime import timedelta
-# import logging
-
-# logger = logging.getLogger(__name__)
 
 def main(max_pages=5):
     # Determine the newest job date we already have
@@ -21,16 +18,16 @@ def main(max_pages=5):
         print(f"No jobs in DB yet – initial fetch (limited to {pages} pages)")
 
     # Fetch jobs incrementally from API
-    print("Fetching job listings...", flush=True)
+    print("Fetching job listings...")
     jobs = fetch_jobs(newest_seen=fetch_from, max_pages=pages)
-    print(f"Fetched {len(jobs)} candidate job(s).\n", flush=True)
+    print(f"Fetched {len(jobs)} candidate job(s).\n")
 
     # Store in Postgres
-    print("Storing in SQL database (Postgres)...", flush=True)
+    print("Storing in SQL database (Postgres)...")
     store_jobs_sql(jobs)
 
     # Store in MongoDB
-    print("Storing in NoSQL database (MongoDB)...", flush=True)
+    print("Storing in NoSQL database (MongoDB)...")
     store_jobs_nosql(jobs)
 
 if __name__ == "__main__":
