@@ -4,9 +4,12 @@ import joblib
 import re
 import os
 
-# Get the directory where this file is located
-MODEL_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(MODEL_DIR, 'salary_model.pkl')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "salary_model.pkl")
+
+# ============================================================================
+# FEATURE EXTRACTION (same as training)
+# ============================================================================
 
 def extract_simple_features(df):
     """Extract simple features from job descriptions"""
