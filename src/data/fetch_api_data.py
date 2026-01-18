@@ -4,7 +4,6 @@ import time
 
 from dotenv import load_dotenv
 from datetime import datetime
-from airflow.models import Variable
 
 load_dotenv()
 
@@ -28,10 +27,11 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
     }
 
     # Read starting page from Airflow Variable (default to 1 if not set)
-    start_page_str = Variable.get(page_var_name, default_var="1")
-    start_page = int(start_page_str)
+    #start_page_str = Variable.get(page_var_name, default_var="1")
+    #start_page = int(start_page_str)
 
     jobs = []
+    page = 1
     # 25 hits per minute -> at least 60/25 ≈ 2.4 seconds between calls
     delay_seconds = 2.5
 

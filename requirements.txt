@@ -19,7 +19,7 @@ defusedxml==0.7.1
 dnspython==2.8.0
 dotenv==0.9.9
 executing==2.2.1
-fastapi==0.127.0
+fastapi>=0.116.0,<0.118.0
 fastjsonschema==2.21.2
 fqdn==1.5.1
 h11==0.16.0

@@ -85,7 +85,7 @@ x-airflow-common:
   user: "${AIRFLOW_UID:-50000}:0"
   networks:
     - default
-    - my-network
+    - app-network
   depends_on:
     &airflow-common-depends-on
     redis:
@@ -344,6 +344,6 @@ volumes:
 
 networks:
   default:
-  my-network:
-    name: oct25_bde_job_market_my-network
+  app-network:
+    name: oct25_bde_job_market_app-network
     external: true
