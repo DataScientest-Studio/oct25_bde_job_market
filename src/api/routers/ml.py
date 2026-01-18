@@ -11,10 +11,10 @@ router = APIRouter(prefix="/ml", tags=["ml"])
 
 class PredictInput(BaseModel):
     title: str
-    company: str | None = None
-    jobdescription: str = "General position requiring relevant skills."
-    contracttype: str = "permanent"
-    contracttime: str = "fulltime"
+    job_description: str = "General position requiring relevant skills."
+    #company: str | None = None
+    contract_type: str = "permanent"
+    contract_time: str = "fulltime"
     city: str = "Berlin"
     country: str = "Deutschland"
 
@@ -28,10 +28,10 @@ async def train_model_endpoint() -> Dict[str, Any]:
 async def predict_endpoint(data: PredictInput) -> Dict[str, float]:
     """Predict salary via predict_model.py."""
     prediction = predict_salary(
-        jobtitle=data.title,
-        jobdescription=data.jobdescription,
-        contracttype=data.contracttype,
-        contracttime=data.contracttime,
+        job_title=data.title,
+        job_description=data.job_description,
+        contract_type=data.contract_type,
+        contract_time=data.contract_time,
         city=data.city,
         country=data.country
     )
