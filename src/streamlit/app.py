@@ -82,8 +82,8 @@ if st.button("🔮 Predict Salary", use_container_width=True, type="primary"):
         with st.spinner("Predicting salary..."):
             try:
                 # Call API
-                params = {
-                    "job_title": job_title,
+                payload = {
+                    "title": job_title,
                     "job_description": job_description,
                     "city": city,
                     "country": country,
@@ -91,15 +91,15 @@ if st.button("🔮 Predict Salary", use_container_width=True, type="primary"):
                     "contract_type": contract_type
                 }
                 
-                response = requests.get(
-                    f"{API_URL}/data/predictions",
-                    params=params,
+                response = requests.post(
+                    f"{API_URL}/ml/predict",
+                    json=payload,
                     timeout=30
                 )
                 
                 if response.status_code == 200:
                     data = response.json()
-                    salary = data.get("Predicted Salary")
+                    salary = data.get("predicted_salary")
                     
                     if salary is None:
                         st.error("❌ No salary prediction received from API")
