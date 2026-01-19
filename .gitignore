@@ -95,3 +95,4 @@ target/
 # csv files
 .csvdocker-compose.local.yml
 notebooks/.env
+.env
