@@ -1,6 +1,7 @@
 """
 Streamlit app for salary prediction.
-Main entry point for the Streamlit application.
+Job datails are input via Streamlit UI.
+Returns salary prediction from FastAPI predict endpoint.
 """
 
 import streamlit as st
