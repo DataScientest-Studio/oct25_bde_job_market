@@ -27,7 +27,7 @@ async def trigger_ingestion(request: Optional[IngestRequest] = Body(None)):
         logger.info(f"Ingestion completed: {max_pages} pages, next_start_page={result.get('next_start_page')}")
         return {
             "status": "ingestion_accepted",
-            "pages_fetched": result.get("jobs_fetched", max_pages),
+            "jobs_fetched": result.get("jobs_fetched", max_pages),
             "next_start_page": result.get("next_start_page"),
             "message": "Check logs/DB for inserted count"
         }

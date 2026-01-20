@@ -17,7 +17,7 @@ def adzuna_workflow():
 
     @task
     def ingest():
-        start_page = Variable.get("adzuna_start_page", 1)
+        start_page = Variable.get("start_page", 1)
         max_pages = Variable.get("max_pages", default=5)
         fastapi_url = "http://api:8000/data/ingest"
 
@@ -36,7 +36,7 @@ def adzuna_workflow():
 
             next_start = result.get("next_start_page")
  
-            Variable.set("adzuna_start_page", result["next_start_page"], serialize_json=True)
+            Variable.set("start_page", result["next_start_page"], serialize_json=True)
             return result  # Returns pages fetched, etc.
 
         except requests.exceptions.HTTPError as e:
