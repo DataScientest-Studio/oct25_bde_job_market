@@ -27,10 +27,6 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
         "sort_by": "date" # newest first
     }
 
-    # Read starting page from Airflow Variable (default to 1 if not set)
-    #start_page_str = Variable.get(page_var_name, default_var="1")
-    #start_page = int(start_page_str)
-
     jobs = []
     last_page_fetched = None
 
@@ -50,7 +46,6 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
             break
 
         early_stop = False
-        # Add newest_seen check from secondary code
         if newest_seen:
             for job in page_results:
                 created_dt = datetime.fromisoformat(job["created"]).replace(tzinfo=None)
@@ -58,7 +53,7 @@ def fetch_jobs(category="it-jobs", country="de", results_per_page=50, newest_see
                     print(f"Reached jobs older than newest_seen on page {page}, stopping early.")
                     last_page_fetched = page  # Still update last_fetched
                     early_stop = True
-                    break  # Break the for-job loop
+                    break
             if not early_stop:
                 jobs.extend(page_results)
         else:
