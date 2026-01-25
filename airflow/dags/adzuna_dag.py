@@ -76,9 +76,3 @@ def adzuna_workflow():
     ingest() >> train()
 
 adzuna_workflow()
-
-
-
-# if __name__ == "__main__":
-#     adzuna_workflow().test()
-

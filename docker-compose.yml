@@ -5,9 +5,10 @@ x-common: &common
   networks:
     - app-network
 
-# -- MongoDB Services --
 
 services:
+
+# -- MongoDB Services --
   
   mongodb:
     image: mongo:8.2.3
@@ -71,8 +72,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
       - 5050:80
-    networks:
-      - app-network
     depends_on:
       - postgres
     <<: *common
