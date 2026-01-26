@@ -15,17 +15,20 @@ router = APIRouter(prefix="/data", tags=["data"])
 
 class IngestRequest(BaseModel):
     max_pages: Optional[int] = 5  # Default 5
+    start_page: Optional[int] = 1  # Default start page for incremental fetch
 
 @router.post("/ingest", status_code=status.HTTP_202_ACCEPTED)
 async def trigger_ingestion(request: Optional[IngestRequest] = Body(None)):
     """Fetches fresh jobs from Adzuna API and upserts into Postgres/Mongo."""
     try:
         max_pages = request.max_pages if request else 5
-        ingestion_pipeline(max_pages=max_pages)
-        logger.info(f"Ingestion completed: {max_pages} pages")
+        start_page = request.start_page if request else 1
+        result = ingestion_pipeline(max_pages=max_pages, start_page=start_page)
+        logger.info(f"Ingestion completed: {max_pages} pages, next_start_page={result.get('next_start_page')}")
         return {
-            "status": "ingestion_accepted", 
-            "pages_fetched": max_pages,
+            "status": "ingestion_accepted",
+            "jobs_fetched": result.get("jobs_fetched", max_pages),
+            "next_start_page": result.get("next_start_page"),
             "message": "Check logs/DB for inserted count"
         }
     except Exception as e:
