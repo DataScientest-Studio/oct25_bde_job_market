@@ -3,7 +3,7 @@ Job Market Salary Predictor
 
 ## 📊 Overview
 
-App that predicts IT job salaries in Germany. It pulls job data from the Adzuna API, trains a machine learning model to predict salaries, and lets you use it via a web app or REST API.
+App that predicts IT job salaries in Germany. It pulls job data from the [Adzuna API](https://developer.adzuna.com/docs/terms_of_service), trains a machine learning model to predict salaries, and lets you use it via a web app or REST API.
 
 What you get:
 - Daily job data pulled from Adzuna (~1,500 jobs so far)
@@ -62,18 +62,18 @@ curl -X POST "http://localhost:8000/ml/predict" \
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Tech Stack
 
-The stack is fairly straightforward:
+| Component | Port | Role | Tech |
+|-----------|------|------|------|
+| **FastAPI** | 8000 | API + ML predictions/training | FastAPI, scikit-learn, pandas, numpy |
+| **Streamlit** | 8501 | Interactive web UI | Streamlit |
+| **PostgreSQL** | 5432 | Structured job data | PostgreSQL + pgAdmin (5050) |
+| **MongoDB** | 27017 | Job descriptions | MongoDB + Mongo Express (8081) |
+| **Airflow** | 8080 | Data pipeline automation | Apache Airflow (optional) |
+| **Docker** | - | Container orchestration | Docker Compose |
 
-- **FastAPI** (port 8000): Handles the API and ML
-- **Streamlit** (port 8501): The web UI for predictions
-- **PostgreSQL**: Stores job data 
-- **MongoDB**: Stores full job descriptions
-- **pgAdmin & Mongo Express**: Web UIs to browse the databases
-- **Airflow** (optional): Daily job fetching and model retraining
-
-All in Docker, connected together on the same network.
+All services run in Docker and share the same `app-network`, so they can communicate with each other. Airflow runs in its own docker-compose but connects to the same network as the main services.
 
 ## ⚙️ What's Running
 
@@ -138,7 +138,7 @@ curl -X POST http://localhost:8000/ml/train
 
 **Pull new jobs from Adzuna:**
 ```bash
-curl -X PUT http://localhost:8000/data
+curl -X POST http://localhost:8000/data/ingest
 ```
 
 **List jobs in the database:**
@@ -266,19 +266,10 @@ cd airflow && docker-compose up -d && cd ..
 
 ---
 
-## 🛠️ Tech Stack
-
-- FastAPI, Streamlit (frontend)
-- PostgreSQL, MongoDB (databases)
-- scikit-learn, pandas, numpy (ML/data processing)
-- Apache Airflow (scheduling)
-- Docker & Docker Compose
-
----
 
 ## 👥 Who Made This
 
-DataScienceTest Data Engineering Bootcamp (Oct 2025 - January 2026) project by Alexander Weiß, Yannis Wittig, Tom Krause and Birgit Hermsen.
+DataScientest Data Engineering Bootcamp (Oct 2025 - January 2026) project by Alexander Weiß, Yannis Wittig, Tom Krause and Birgit Hermsen.
 
 ---
 
